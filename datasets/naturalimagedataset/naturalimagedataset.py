@@ -1,11 +1,13 @@
-from datasets import ImageDataset
+from .. import ImageDataset
 import os
+import pathlib
+import requests
 
 class NaturalImageDataset(ImageDataset):
     """ Natural Image Noise Dataset
 
         Reference: https://arxiv.org/abs/1906.00270
-                   https://commons.wikimedia.org/wiki/Natural_Image_Noise_Dataset
+                   https://commons.wikimedia.org/wiki/Natural_Image_Noise_Data
     """
 
     imageslist = {
@@ -125,10 +127,35 @@ class NaturalImageDataset(ImageDataset):
             ], 'ext': 'jpg'},
     }
 
+    def fetch(self, path):
+        filename = os.path.basename(path)
+        dirname = os.path.dirname(path)
+        if not os.path.exists(dirname):
+            pathlib.Path(dirname).mkdir(parents=True)
+
+        apiurl = 'https://commons.wikimedia.org/w/api.php'
+        datelimit = '2019-06-11'
+        params = {
+            'action': 'query',
+            'format': 'json',
+            'prop': 'imageinfo',
+            'titles': 'File:'+filename.replace('_', ' '),
+            'iistart': datelimit+'T23:59:59Z',
+            'iiprop': 'timestamp|url|sha1',
+        }
+
+        # get info about the media
+        response = requests.get(apiurl, params).json()
+        imageinfo = next(iter(response['query']['pages'].values()))['imageinfo'][0]
+
+        # and then download it
+        self.download(imageinfo["url"], path)
+
+
     def image_triplets(self):
         triplets = []
         current_dir = os.path.dirname(os.path.realpath(__file__))
-        base_dir = os.path.join(current_dir, "..", "..", "datasets", "natural_images", "NIND")
+        base_dir = os.path.join(current_dir, "images")
         for camera, images in self.imageslist.items():
             ext = images["ext"]
             for imagedata in images["images"]:

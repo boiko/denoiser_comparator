@@ -3,6 +3,8 @@
 
 from abc import ABC, abstractmethod
 import cv2
+import os
+import requests
 
 class CropWindow(object):
     CROP_TOP = 1
@@ -56,7 +58,26 @@ class ImageDataset(ABC):
             Sub-classes need to implement this method. """
         pass
 
+    @abstractmethod
+    def fetch(self, path):
+        pass
+
+    def download(self, url, local_path):
+        """
+        Downloads the given file to a local path
+        :param url: the remote URL
+        :param local_path: the local file path
+        """
+        print("Downloading {}".format(url))
+        response = requests.get(url)
+        with open(local_path, "wb") as local_file:
+            local_file.write(response.content)
+
     def load_image(self, path):
+        if not os.path.exists(path):
+            # try to fetch it
+            self.fetch(path)
+
         image = cv2.imread(path)
         if self.crop_window:
             image = self.crop_window.crop_image(image)
