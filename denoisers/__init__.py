@@ -11,6 +11,7 @@ denoiser_map = {
     "fastnlmeans": (".opencvdenoisers", "FastNLMeansDenoiser"),
     "blur": (".opencvdenoisers", "BlurDenoiser"),
     "gaussianblur": (".opencvdenoisers", "GaussianBlurDenoiser"),
+    "medianblur": (".opencvdenoisers", "MedianBlurDenoiser"),
     # deep learning stuff
     "deepimageprior": (".deepimageprior", "DeepImagePrior"),
 }

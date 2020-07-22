@@ -45,4 +45,4 @@ class MedianBlurDenoiser(Denoiser):
     description = "Median blur filter"
 
     def denoise(self, image):
-        return cv2.medianBlur(image, )
+        return cv2.medianBlur(image, 5)
