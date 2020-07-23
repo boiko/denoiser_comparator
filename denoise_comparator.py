@@ -5,6 +5,7 @@ import datasets
 import metrics
 import cv2
 import time
+import pathlib
 from results import Results
 from argparse import ArgumentParser
 
@@ -29,6 +30,15 @@ def check_invalid(what, informed, available, allow_all=False):
         return []
     return informed
 
+def prepare_output_dir(csv_file):
+    csv_path = pathlib.Path(csv_file)
+    output_dir = csv_path.parent / csv_path.name.replace(".csv", "")
+
+    if not output_dir.exists():
+        output_dir.mkdir(parents=True)
+
+    return output_dir
+
 if __name__ == "__main__":
 
     parser = ArgumentParser()
@@ -42,6 +52,8 @@ if __name__ == "__main__":
     parser.add_argument("--output", action="store", help="Output CSV file to store the results")
     parser.add_argument("--crop", nargs=2, metavar="WIDTH HEIGHT", type=int)
     parser.add_argument("--preview", action="store_true", help="Preview images after each step")
+    parser.add_argument("--save-images", action="store_true",
+                        help="Save results to same folder/name as the output CSV file.")
     options = parser.parse_args()
 
     if options.list:
@@ -75,6 +87,11 @@ if __name__ == "__main__":
         # crop at center by default
         the_dataset.crop(options.crop[0], options.crop[1], datasets.CropWindow.CROP_CENTER)
 
+    output_dir = pathlib.Path(".")
+    if options.save_images:
+        output_dir = prepare_output_dir(options.output)
+        print("Images are being saved to ")
+
     results = Results(options.output, print=True)
 
     for name, noisy, reference in the_dataset:
@@ -98,6 +115,10 @@ if __name__ == "__main__":
             for metric in the_metrics:
                 value = metric.compare(reference, denoisy)
                 results.append(name, denoiser, metric, value, duration)
+
+        if options.save_images:
+            for key, img in result_images.items():
+                cv2.imwrite(str(output_dir / "{}_{}.png".format(name, key)), img)
 
         if options.preview:
             for name, img in result_images.items():
