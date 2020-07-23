@@ -43,13 +43,18 @@ if __name__ == "__main__":
 
     parser = ArgumentParser()
 
-    parser.add_argument("--list", action="store_true", help="List available denoisers, datasets and metrics")
+    # store the name of the default dataset
+    default_dataset = datasets.list_datasets()[0]
+    parser.add_argument("--list", action="store_true",
+                        help="List available denoisers, datasets and metrics")
     parser.add_argument("--denoisers", action="store", nargs="+", metavar=("DENOISER1", "DENOISER2"),
-                        help="Choose which denoisers should be used")
-    parser.add_argument("--dataset", action="store", help="Dataset to be used")
+                        help="Choose which denoisers should be used (default: all)", default="all")
+    parser.add_argument("--dataset", action="store", default=default_dataset,
+                        help="Dataset to be used (default: {})".format(default_dataset))
     parser.add_argument("--metrics", action="store", nargs="+", metavar=("METRIC1", "METRIC2"),
-                        help="Metrics to be used to compare results")
-    parser.add_argument("--output", action="store", help="Output CSV file to store the results")
+                        help="Metrics to be used to compare results (default: all)", default="all")
+    parser.add_argument("--output", action="store", default="output.csv",
+                        help="Output CSV file to store the results (default: output.csv)")
     parser.add_argument("--crop", nargs=2, metavar="WIDTH HEIGHT", type=int)
     parser.add_argument("--preview", action="store_true", help="Preview images after each step")
     parser.add_argument("--save-images", action="store_true",
@@ -62,12 +67,7 @@ if __name__ == "__main__":
         print_available("Available metrics:", metrics.list_metrics() + ["all"])
         exit(0)
 
-
-    if not (options.denoisers and options.dataset and options.metrics and options.output):
-        parser.error("You need to specify at least one denoiser, a dataset, one metric and an output file.")
-
     # sanity check if no wrong values were given
-
     options.denoisers = check_invalid("denoisers", options.denoisers, denoisers.list_denoisers(), True)
     if not options.denoisers:
         exit(1)
@@ -87,10 +87,11 @@ if __name__ == "__main__":
         # crop at center by default
         the_dataset.crop(options.crop[0], options.crop[1], datasets.CropWindow.CROP_CENTER)
 
+    print("Results are being saved to {}".format(options.output))
     output_dir = pathlib.Path(".")
     if options.save_images:
         output_dir = prepare_output_dir(options.output)
-        print("Images are being saved to ")
+        print("Images are being saved to {}".format(output_dir))
 
     results = Results(options.output, print=True)
 
