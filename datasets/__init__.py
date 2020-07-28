@@ -1,4 +1,4 @@
-from .imagedataset import ImageDataset, CropWindow
+from .imagedataset import ImageDataset, BasicImageDataset, CropWindow
 import os
 import glob
 from importlib import import_module
@@ -20,6 +20,11 @@ def dataset_factory(subdir):
         if item and isclass(item) and issubclass(item, ImageDataset):
             class_factory = item
             break
+
+    if not class_factory:
+        # use a basic dataset for this dir
+        class_factory = lambda: BasicImageDataset(subdir)
+
     return (basename, class_factory)
 
 def list_datasets():

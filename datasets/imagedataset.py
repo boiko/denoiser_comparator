@@ -6,6 +6,7 @@ import cv2
 import os
 import requests
 import noisers
+import glob
 
 class CropWindow(object):
     CROP_TOP = 1
@@ -60,8 +61,11 @@ class ImageDataset(ABC):
             Sub-classes need to implement this method. """
         pass
 
-    @abstractmethod
     def fetch(self, path):
+        """
+        Fetches the image for the given local path. The default implementation does nothing.
+        :param path: the path to the local file that is missing
+        """
         pass
 
     def download(self, url, local_path):
@@ -94,7 +98,7 @@ class ImageDataset(ABC):
 
     def __next__(self):
         if self._current < len(self._triplets):
-            name, noisy, ref = self._triplets[self._current]
+            name, ref, noisy = self._triplets[self._current]
 
             # if the given dataset does not provide noisy images, use a synthetic noise generator
             if not self._noiser and not noisy:
@@ -125,3 +129,43 @@ class ImageDataset(ABC):
 
     def __len__(self):
         return len(self._triplets)
+
+
+class BasicImageDataset(ImageDataset):
+    """
+    Basic image dataset implementation that loads image from a given directory and use them as a
+    dataset. Datasets of this kind are not symmetric as they don't provide noisy images. A
+    synthetic noise generator needs to be used.
+    """
+
+    name = "basic_image_dataset"
+    description = "Filesystem based asymetric image dataset"
+    def __init__(self, path):
+        """
+        Creates an instance of this dataset collecting images from the given path
+        :param path:
+        """
+        self._path = path
+        self.name = os.path.basename(path)
+        self._load_entries()
+        super().__init__()
+
+    def _load_entries(self):
+        supported = [".bmp", ".dib", ".jpeg", ".jpg", ".jpe", ".jp2", ".png", ".webp",
+                     ".pbm", ".pgm", ".ppm", ".pxm", ".pnm", ".pfm", ".sr", ".ras",
+                     ".tiff", ".tif", ".exr", ".hdr", ".pic"]
+
+        self._entries = []
+        print(self._path)
+        for entry in glob.glob(os.path.join(self._path, "*")):
+            print(entry)
+            name, ext = os.path.splitext(entry)
+            print("BLABLA name: {} ext: {}".format(name, ext))
+            if not os.path.isfile(entry) or ext.lower() not in supported:
+                continue
+
+            self._entries.append((os.path.basename(name), entry, None))
+        print(self._entries)
+
+    def image_triplets(self):
+        return self._entries
