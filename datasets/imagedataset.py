@@ -42,19 +42,19 @@ class CropWindow(object):
 class ImageDataset(ABC):
     """ Base class for all dataset objects
 
-        Sub-classes need to implement the @ref image_pairs() """
+        Sub-classes need to implement the @ref image_triplets() """
 
     def __init__(self):
         super().__init__()
 
         self.crop_window = None
 
-        # load the image pairs from sub-class
+        # load the image triplets from sub-class
         self.triplets = self.image_triplets()
 
     @abstractmethod
     def image_triplets(self):
-        """ Returns the triplet of name,noisy,reference for each image in the dataset.
+        """ Returns the triplet of (name, reference, noisy) for each image in the dataset.
             Sub-classes need to implement this method. """
         pass
 
@@ -100,4 +100,4 @@ class ImageDataset(ABC):
 
 
     def __len__(self):
-        return len(self.pairs)
+        return len(self.triplets)

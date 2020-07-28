@@ -170,6 +170,6 @@ class NaturalImageDataset(ImageDataset):
                 # for now use the noisiest one
                 noisy = imagedata[-1]
                 noisy = os.path.join(base_dir, name, "NIND_{}_ISO{}.{}".format(name, noisy, ext))
-                triplets.append((name, noisy, ref))
+                triplets.append((name, ref, noisy))
 
         return triplets
