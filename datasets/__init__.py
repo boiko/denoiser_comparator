@@ -1,5 +1,5 @@
 from .imagedataset import ImageDataset, CropWindow
-from .naturalimagedataset import NaturalImageDataset
+from .natural_images import NaturalImageDataset
 
 dataset_map = {
     "natural_images": NaturalImageDataset,
