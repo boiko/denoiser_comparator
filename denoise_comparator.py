@@ -3,6 +3,7 @@
 import denoisers
 import datasets
 import metrics
+import noisers
 import cv2
 import time
 import pathlib
@@ -49,6 +50,8 @@ if __name__ == "__main__":
                         help="List available denoisers, datasets and metrics")
     parser.add_argument("--denoisers", action="store", nargs="+", metavar=("DENOISER1", "DENOISER2"),
                         help="Choose which denoisers should be used (default: all)", default="all")
+    parser.add_argument("--noiser", action="store",
+                        help="Generate synthetic noise using the given noiser")
     parser.add_argument("--dataset", action="store", default=default_dataset,
                         help="Dataset to be used (default: {})".format(default_dataset))
     parser.add_argument("--metrics", action="store", nargs="+", metavar=("METRIC1", "METRIC2"),
@@ -63,6 +66,7 @@ if __name__ == "__main__":
 
     if options.list:
         print_available("Available denoisers:", denoisers.list_denoisers() + ["all"])
+        print_available("Available noisers:", noisers.list_noisers())
         print_available("Available datasets:", datasets.list_datasets())
         print_available("Available metrics:", metrics.list_metrics() + ["all"])
         exit(0)
@@ -77,8 +81,13 @@ if __name__ == "__main__":
         exit(1)
 
     the_datasets = check_invalid("datasets", [options.dataset], datasets.list_datasets())
-    if not datasets:
+    if not the_datasets:
         exit(1)
+
+    if options.noiser:
+        the_noisers = check_invalid("noisers", [options.noiser], noisers.list_noisers())
+        if not the_noisers:
+            exit(1)
 
     the_denoisers = [denoisers.create(d) for d in options.denoisers]
     the_metrics = [metrics.create(m) for m in options.metrics]
@@ -86,6 +95,9 @@ if __name__ == "__main__":
     if options.crop:
         # crop at center by default
         the_dataset.crop(options.crop[0], options.crop[1], datasets.CropWindow.CROP_CENTER)
+
+    if options.noiser:
+        the_dataset.set_noiser(noisers.create(options.noiser))
 
     print("Results are being saved to {}".format(options.output))
     output_dir = pathlib.Path(".")

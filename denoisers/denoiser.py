@@ -1,5 +1,4 @@
 # Denoiser: base class for image denoisers
-# TODO: add copyright
 
 from abc import ABC, abstractmethod
 

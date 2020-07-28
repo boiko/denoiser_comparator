@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 import cv2
 import os
 import requests
+import noisers
 
 class CropWindow(object):
     CROP_TOP = 1
@@ -46,11 +47,12 @@ class ImageDataset(ABC):
 
     def __init__(self):
         super().__init__()
+        self._noiser = None
 
         self.crop_window = None
 
         # load the image triplets from sub-class
-        self.triplets = self.image_triplets()
+        self._triplets = self.image_triplets()
 
     @abstractmethod
     def image_triplets(self):
@@ -87,17 +89,39 @@ class ImageDataset(ABC):
         self.crop_window = CropWindow(width, height, position)
 
     def __iter__(self):
-        self.current = 0
+        self._current = 0
         return self
 
     def __next__(self):
-        if self.current < len(self.triplets):
-            name, noisy, ref = self.triplets[self.current]
-            self.current += 1
-            return (name, self.load_image(noisy), self.load_image(ref))
+        if self._current < len(self._triplets):
+            name, noisy, ref = self._triplets[self._current]
+
+            # if the given dataset does not provide noisy images, use a synthetic noise generator
+            if not self._noiser and not noisy:
+                self._noiser = noisers.default_noiser()
+                print("The given dataset does not provide noisy images. Using default noiser ({})" \
+                      .format(self._noiser.name))
+
+            ref_image = self.load_image(ref)
+            # in case we are using a noiser, ignore the noisy path
+            if self._noiser:
+                noisy_image = self._noiser.noise(ref_image)
+            else:
+                noisy_image = self.load_image(noisy)
+
+            self._current += 1
+            return (name, noisy_image, ref_image)
         else:
             raise StopIteration
 
+    def set_noiser(self, noiser):
+        """
+        Use the given noiser to generate synthetic noise in the images.
+        Even if the dataset is a symetric one (with both noise and reference) the noisy
+        image will be generated using the given noiser.
+        :param noiser: the :ref: Noiser to be used
+        """
+        self._noiser = noiser
 
     def __len__(self):
-        return len(self.triplets)
+        return len(self._triplets)
