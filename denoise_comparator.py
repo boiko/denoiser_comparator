@@ -70,10 +70,12 @@ if __name__ == "__main__":
     options = parser.parse_args()
 
     if options.list:
-        print_available("Available denoisers:", denoisers.list_denoisers() + ["all"])
+        print_available("Available denoisers:", denoisers.list_denoisers(with_description=True) \
+                        + [("all", "Run all the available denoisers")])
         print_available("Available noisers:", noisers.list_noisers(with_description=True))
-        print_available("Available datasets:", datasets.list_datasets())
-        print_available("Available metrics:", metrics.list_metrics() + ["all"])
+        print_available("Available datasets:", datasets.list_datasets(with_description=True))
+        print_available("Available metrics:", metrics.list_metrics(with_description=True) \
+                        + [("all", "Use all metrics")])
         exit(0)
 
     # sanity check if no wrong values were given

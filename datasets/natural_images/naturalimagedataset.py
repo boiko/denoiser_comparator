@@ -10,6 +10,9 @@ class NaturalImageDataset(ImageDataset):
                    https://commons.wikimedia.org/wiki/Natural_Image_Noise_Data
     """
 
+    name = "natural_images"
+    description = "Natural image noise dataset"
+
     imageslist = {
         'XT1_8bit': {
             'images': [

@@ -46,6 +46,9 @@ class ImageDataset(ABC):
 
         Sub-classes need to implement the @ref image_triplets() """
 
+    name = "Image dataset"
+    description = "Base class for all image datasets"
+
     def __init__(self):
         super().__init__()
         self._noiser = None
@@ -140,6 +143,7 @@ class BasicImageDataset(ImageDataset):
 
     name = "basic_image_dataset"
     description = "Filesystem based asymetric image dataset"
+
     def __init__(self, path):
         """
         Creates an instance of this dataset collecting images from the given path

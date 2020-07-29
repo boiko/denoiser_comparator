@@ -43,7 +43,7 @@ def create(noiser):
     if noiser not in noiser_map:
         raise ValueError(noiser)
 
-    return noiser_map[noiser]()
+    return noiser_map[noiser]["factory"]()
 
 def default_noiser():
     """

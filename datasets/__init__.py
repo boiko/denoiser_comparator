@@ -27,16 +27,20 @@ def dataset_factory(subdir):
 
     return (basename, class_factory)
 
-def list_datasets():
-    # check for cached values
-    if dataset_map:
-        return list(dataset_map.keys())
+def list_datasets(with_description=False):
+    if not dataset_map:
+        # check all subdirs for valid datasets
+        for entry in glob.glob(os.path.join(os.path.dirname(__file__), "*")):
+            name, class_factory = dataset_factory(entry)
+            if class_factory is not None:
+                dataset_map[name] = {
+                    "factory": class_factory,
+                    "description": getattr(class_factory, "description",
+                                           "Directory based dataset at {}".format(entry)),
+                }
 
-    # check all subdirs for valid datasets
-    for entry in glob.glob(os.path.join(os.path.dirname(__file__), "*")):
-        name, class_factory = dataset_factory(entry)
-        if class_factory is not None:
-            dataset_map[name] = class_factory
+    if with_description:
+        return [(k, v["description"]) for k, v in dataset_map.items()]
 
     return list(dataset_map.keys())
 
@@ -44,4 +48,4 @@ def create(dataset):
     if dataset not in dataset_map:
         raise ValueError(dataset)
 
-    return dataset_map[dataset]()
+    return dataset_map[dataset]["factory"]()
