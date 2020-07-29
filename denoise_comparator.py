@@ -14,7 +14,12 @@ from argparse import ArgumentParser
 def print_available(message, entries):
     print(message)
     for entry in entries:
-        print(" * {}".format(entry))
+        # check if the given entry is a name,description tuple
+        if isinstance(entry, tuple):
+            name, desc = entry
+            print("  * {:15}{}".format(name, desc))
+        else:
+            print(" * {}".format(entry))
     print("")
 
 def check_invalid(what, informed, available, allow_all=False):
@@ -61,12 +66,12 @@ if __name__ == "__main__":
     parser.add_argument("--crop", nargs=2, metavar="WIDTH HEIGHT", type=int)
     parser.add_argument("--preview", action="store_true", help="Preview images after each step")
     parser.add_argument("--save-images", action="store_true",
-                        help="Save results to same folder/name as the output CSV file.")
+                        help="Save image results to same folder/name as the output CSV file.")
     options = parser.parse_args()
 
     if options.list:
         print_available("Available denoisers:", denoisers.list_denoisers() + ["all"])
-        print_available("Available noisers:", noisers.list_noisers())
+        print_available("Available noisers:", noisers.list_noisers(with_description=True))
         print_available("Available datasets:", datasets.list_datasets())
         print_available("Available metrics:", metrics.list_metrics() + ["all"])
         exit(0)
