@@ -101,25 +101,34 @@ class ImageDataset(ABC):
 
     def __next__(self):
         if self._current < len(self._triplets):
-            name, ref, noisy = self._triplets[self._current]
-
-            # if the given dataset does not provide noisy images, use a synthetic noise generator
-            if not self._noiser and not noisy:
-                self._noiser = noisers.default_noiser()
-                print("The given dataset does not provide noisy images. Using default noiser ({})" \
-                      .format(self._noiser.name))
-
-            ref_image = self.load_image(ref)
-            # in case we are using a noiser, ignore the noisy path
-            if self._noiser:
-                noisy_image = self._noiser.noise(ref_image)
-            else:
-                noisy_image = self.load_image(noisy)
-
             self._current += 1
-            return (name, noisy_image, ref_image)
+            return self.__getitem__(self._current)
         else:
             raise StopIteration
+
+    def __len__(self):
+        return len(self._triplets)
+
+    def __getitem__(self, item):
+        if item < 0 or item >= len(self._triplets):
+            raise ValueError("Out of range: {}".format(item))
+
+        name, ref, noisy = self._triplets[item]
+
+        # if the given dataset does not provide noisy images, use a synthetic noise generator
+        if not self._noiser and not noisy:
+            self._noiser = noisers.default_noiser()
+            print("The given dataset does not provide noisy images. Using default noiser ({})" \
+                  .format(self._noiser.name))
+
+        ref_image = self.load_image(ref)
+        # in case we are using a noiser, ignore the noisy path
+        if self._noiser:
+            noisy_image = self._noiser.noise(ref_image)
+        else:
+            noisy_image = self.load_image(noisy)
+
+        return (name, noisy_image, ref_image)
 
     def set_noiser(self, noiser):
         """
@@ -129,9 +138,6 @@ class ImageDataset(ABC):
         :param noiser: the :ref: Noiser to be used
         """
         self._noiser = noiser
-
-    def __len__(self):
-        return len(self._triplets)
 
 
 class BasicImageDataset(ImageDataset):
@@ -160,16 +166,12 @@ class BasicImageDataset(ImageDataset):
                      ".tiff", ".tif", ".exr", ".hdr", ".pic"]
 
         self._entries = []
-        print(self._path)
         for entry in glob.glob(os.path.join(self._path, "*")):
-            print(entry)
             name, ext = os.path.splitext(entry)
-            print("BLABLA name: {} ext: {}".format(name, ext))
             if not os.path.isfile(entry) or ext.lower() not in supported:
                 continue
 
             self._entries.append((os.path.basename(name), entry, None))
-        print(self._entries)
 
     def image_triplets(self):
         return self._entries

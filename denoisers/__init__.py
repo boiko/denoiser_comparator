@@ -36,6 +36,11 @@ denoiser_map = {
         "factory": (".opencvdenoisers", "MedianBlurDenoiser"),
         "description": "Blurs an image using the median filter",
     },
+    # other non-CNN denoisers
+    "bm3d": {
+        "factory": (".bm3ddenoiser", "BM3DDenoiser"),
+        "description": "Exact Transform-Domain Noise Variance for Collaborative Filtering of Stationary Correlated Noise",
+    },
     # deep learning stuff
     "deepimageprior": {
         "factory": (".deepimageprior", "DeepImagePrior"),

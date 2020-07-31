@@ -45,6 +45,9 @@ def list_datasets(with_description=False):
     return list(dataset_map.keys())
 
 def create(dataset):
+    # trigger the loading of datasets
+    list_datasets()
+
     if dataset not in dataset_map:
         raise ValueError(dataset)
 
