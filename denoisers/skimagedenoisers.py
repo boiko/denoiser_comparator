@@ -15,10 +15,10 @@ class SKImageDenoiser(Denoiser):
 
     def denoise(self, image):
         # openCV images are BGR and skimage uses RGB, so invert the last and convert to float
-        img = img_as_float(image[:, :, ::-1], force_copy=True)
+        img = img_as_float(self.swap_bgr_rgb(image), force_copy=True)
 
         # and invert back to BGR for comparing
-        result = self._denoise(img)[:, :, ::-1]
+        result = self.swap_bgr_rgb(self._denoise(img))
 
         # not sure why but on some images there are values outside the range -1 and 1
         if result.min() < -1. or result.max() > 1:

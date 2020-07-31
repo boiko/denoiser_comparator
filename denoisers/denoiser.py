@@ -16,3 +16,12 @@ class Denoiser(ABC):
             Sub-classes need to implement this method.
             :type image: ndarray"""
         pass
+
+    @classmethod
+    def swap_bgr_rgb(cls, image):
+        """
+        Swap RGB and BGR images. This function does not check which is which, just do the swap
+        :param image: Image to be swapped
+        :return: swapped image
+        """
+        return image[:, :, ::-1]
