@@ -2,11 +2,14 @@
 # TODO: add copyright
 
 from abc import ABC, abstractmethod
+from PIL import Image
+from matplotlib import pyplot as plt
 import cv2
 import os
 import requests
 import noisers
 import glob
+import pandas as pd
 
 class CropWindow(object):
     CROP_TOP = 1
@@ -44,7 +47,13 @@ class CropWindow(object):
 class ImageDataset(ABC):
     """ Base class for all dataset objects
 
-        Sub-classes need to implement the @ref image_triplets() """
+        If the images from the dataset are not local, the sub-class need to implement the
+        :ref: fetch() method. All images will be downloading when creating an instance of the
+        dataset in order to be able to perform sanity checks on them.
+
+        Sub-classes need to implement the @ref image_triplets()
+
+    """
 
     name = "Image dataset"
     description = "Base class for all image datasets"
@@ -55,8 +64,64 @@ class ImageDataset(ABC):
 
         self.crop_window = None
 
+        self._min_width = -1
+        self._min_height = -1
+        self._max_width = -1
+        self._max_height = -1
+        self._all_of_same_size = True
+        self._metadata = None
+
         # load the image triplets from sub-class
         self._triplets = self.image_triplets()
+        self._load_metadata()
+
+
+    def _load_metadata(self):
+        """
+        Load metadata of all images and calculate metrics out of them
+        """
+
+        metadata = {
+            "name": [],
+            "width": [],
+            "height": [],
+        }
+        for name, ref, noisy in self._triplets:
+            if not os.path.exists(ref):
+                # try to fetch it
+                self.fetch(ref)
+
+            ref_img = Image.open(ref)
+            metadata["name"].append(name)
+            metadata["width"].append(ref_img.width)
+            metadata["height"].append(ref_img.height)
+
+            if noisy:
+                if not os.path.exists(noisy):
+                    self.fetch(noisy)
+
+                noisy_img = Image.open(noisy)
+                if noisy_img.width != ref_img.width or noisy_img.height != noisy_img.height:
+                    raise ValueError("""Reference and noisy images are not of same size:
+                        * Ref: {}
+                        * Noisy: {}""". format(ref, noisy))
+
+        self._metadata = pd.DataFrame(metadata)
+        self._min_width = self._metadata.width.min()
+        self._max_width = self._metadata.width.max()
+        self._min_height = self._metadata.height.min()
+        self._max_height = self._metadata.height.max()
+
+        # just for the fun of it, plot the image size distribution to the
+        self._metadata.plot(x="width", y="height", kind="scatter")
+        plt.title = "Image size distribution"
+        plt.savefig("{}_size_distribution.png".format(self.name))
+
+        # now check if all of the images have the same size
+        if self._metadata.width.nunique() > 1 or self._metadata.height.nunique() > 1:
+            print("Warning: Dataset has images of different size. Cropping to ({}x{}) for consistency" \
+                  .format(self._min_width, self._min_height))
+            self.crop(self._min_width, self._min_height, CropWindow.CROP_CENTER)
 
     @abstractmethod
     def image_triplets(self):
@@ -93,6 +158,12 @@ class ImageDataset(ABC):
         return image
 
     def crop(self, width, height, position):
+        if width > self._min_width or height > self._min_height:
+            print("WARNING: Dataset has images that are smaller than the requested crop window ({}x{})"\
+                  .format(width, height))
+            width = min(width, self._min_width)
+            height = min(height, self._min_height)
+            print("Using the following crop sizes instead: ({}x{})".format(width, height))
         self.crop_window = CropWindow(width, height, position)
 
     def __iter__(self):
@@ -101,8 +172,9 @@ class ImageDataset(ABC):
 
     def __next__(self):
         if self._current < len(self._triplets):
+            item =  self.__getitem__(self._current)
             self._current += 1
-            return self.__getitem__(self._current)
+            return item
         else:
             raise StopIteration
 

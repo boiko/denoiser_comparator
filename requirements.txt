@@ -15,8 +15,11 @@ h5py==2.10.0
 idna==2.10
 imageio==2.9.0
 Keras==2.3.1
+Keras-Applications==1.0.8
 Keras-Preprocessing==1.1.2
 kiwisolver==1.2.0
+lxml==4.5.2
+M2Crypto==0.36.0
 Markdown==3.2.2
 matplotlib==3.3.0
 networkx==2.4
@@ -30,6 +33,7 @@ protobuf==3.12.2
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pyparsing==2.4.7
+PyQt5==5.15.0
 python-dateutil==2.8.1
 pytz==2020.1
 PyWavelets==1.1.1
@@ -44,6 +48,7 @@ tensorboard==2.2.2
 tensorboard-plugin-wit==1.7.0
 tensorflow==2.2.0
 tensorflow-estimator==2.2.0
+tensorflow-gpu==2.2.0
 termcolor==1.1.0
 tifffile==2020.7.17
 urllib3==1.25.9
