@@ -46,6 +46,10 @@ denoiser_map = {
         "factory": (".deepimageprior", "DeepImagePrior"),
         "description": "Deep Image prior denoiser",
     },
+    "cycleisp": {
+        "factory": (".cycleisp", "CycleISP"),
+        "description": "CycleISP: Real Image Restoration via Improved Data Synthesis"
+    },
 }
 
 def list_denoisers(with_description=False):

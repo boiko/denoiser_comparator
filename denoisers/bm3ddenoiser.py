@@ -1,7 +1,5 @@
 from . import Denoiser
-from skimage import img_as_float, img_as_ubyte
 import bm3d
-import numpy as np
 
 class BM3DDenoiser(Denoiser):
     """

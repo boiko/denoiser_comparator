@@ -3,7 +3,6 @@
 
 from abc import ABC, abstractmethod
 from PIL import Image
-from matplotlib import pyplot as plt
 import cv2
 import os
 import requests
