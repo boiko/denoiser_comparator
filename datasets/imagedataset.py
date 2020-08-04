@@ -63,18 +63,12 @@ class ImageDataset(ABC):
         self._noiser = None
 
         self.crop_window = None
-
-        self._min_width = -1
-        self._min_height = -1
-        self._max_width = -1
-        self._max_height = -1
-        self._all_of_same_size = True
-        self._metadata = None
+        self.all_of_same_size = True
+        self.metadata = None
 
         # load the image triplets from sub-class
         self._triplets = self.image_triplets()
         self._load_metadata()
-
 
     def _load_metadata(self):
         """
@@ -106,22 +100,13 @@ class ImageDataset(ABC):
                         * Ref: {}
                         * Noisy: {}""". format(ref, noisy))
 
-        self._metadata = pd.DataFrame(metadata)
-        self._min_width = self._metadata.width.min()
-        self._max_width = self._metadata.width.max()
-        self._min_height = self._metadata.height.min()
-        self._max_height = self._metadata.height.max()
-
-        # just for the fun of it, plot the image size distribution to the
-        self._metadata.plot(x="width", y="height", kind="scatter")
-        plt.title = "Image size distribution"
-        plt.savefig("{}_size_distribution.png".format(self.name))
+        self.metadata = pd.DataFrame(metadata)
 
         # now check if all of the images have the same size
-        if self._metadata.width.nunique() > 1 or self._metadata.height.nunique() > 1:
+        if self.metadata.width.nunique() > 1 or self.metadata.height.nunique() > 1:
             print("Warning: Dataset has images of different size. Cropping to ({}x{}) for consistency" \
-                  .format(self._min_width, self._min_height))
-            self.crop(self._min_width, self._min_height, CropWindow.CROP_CENTER)
+                  .format(self.metadata.width.min(), self.metadata.height.min()))
+            self.crop(self.metadata.width.min(), self.metadata.height.min(), CropWindow.CROP_CENTER)
 
     @abstractmethod
     def image_triplets(self):
@@ -158,11 +143,11 @@ class ImageDataset(ABC):
         return image
 
     def crop(self, width, height, position):
-        if width > self._min_width or height > self._min_height:
+        if width > self.metadata.width.min() or height > self.metadata.height.min():
             print("WARNING: Dataset has images that are smaller than the requested crop window ({}x{})"\
                   .format(width, height))
-            width = min(width, self._min_width)
-            height = min(height, self._min_height)
+            width = min(width, self.metadata.width.min())
+            height = min(height, self.metadata.height.min())
             print("Using the following crop sizes instead: ({}x{})".format(width, height))
         self.crop_window = CropWindow(width, height, position)
 
