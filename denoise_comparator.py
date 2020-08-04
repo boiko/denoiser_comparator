@@ -106,6 +106,10 @@ if __name__ == "__main__":
     if options.noiser:
         the_dataset.set_noiser(noisers.create(options.noiser))
 
+    # just in case the user didn't provide the extension, add it
+    if not options.output.endswith(".csv"):
+        options.output = options.output + ".csv"
+
     print("Results are being saved to {}".format(options.output))
     output_dir = pathlib.Path(".")
     if options.save_images:
