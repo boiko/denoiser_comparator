@@ -60,7 +60,7 @@ class ImageDataset(ABC):
 
     def __init__(self):
         super().__init__()
-        self._noiser = None
+        self.noiser = None
 
         self.crop_window = None
         self.all_of_same_size = True
@@ -173,19 +173,19 @@ class ImageDataset(ABC):
         name, ref, noisy = self._triplets[item]
 
         # if the given dataset does not provide noisy images, use a synthetic noise generator
-        if not self._noiser and not noisy:
-            self._noiser = noisers.default_noiser()
+        if not self.noiser and not noisy:
+            self.noiser = noisers.default_noiser()
             print("The given dataset does not provide noisy images. Using default noiser ({})" \
-                  .format(self._noiser.name))
+                  .format(self.noiser.name))
 
         ref_image = self.load_image(ref)
         # in case we are using a noiser, ignore the noisy path
-        if self._noiser:
-            noisy_image = self._noiser.noise(ref_image)
+        if self.noiser:
+            noisy_image = self.noiser.noise(ref_image)
         else:
             noisy_image = self.load_image(noisy)
 
-        return (name, noisy_image, ref_image)
+        return (name, ref_image, noisy_image)
 
     def set_noiser(self, noiser):
         """
@@ -194,7 +194,7 @@ class ImageDataset(ABC):
         image will be generated using the given noiser.
         :param noiser: the :ref: Noiser to be used
         """
-        self._noiser = noiser
+        self.noiser = noiser
 
 
 class BasicImageDataset(ImageDataset):

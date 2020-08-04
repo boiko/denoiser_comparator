@@ -114,7 +114,7 @@ if __name__ == "__main__":
 
     results = Results(options.output, print=True)
 
-    for name, noisy, reference in the_dataset:
+    for name, reference, noisy in the_dataset:
         result_images = {
             "reference": reference,
             "noisy": noisy,
