@@ -9,6 +9,7 @@ import requests
 import noisers
 import glob
 import pandas as pd
+import random
 
 class CropWindow(object):
     CROP_TOP = 1
@@ -17,6 +18,7 @@ class CropWindow(object):
     CROP_RIGHT = 8
     CROP_VCENTER = 16
     CROP_HCENTER = 32
+    CROP_RANDOM = 64
     CROP_CENTER = CROP_VCENTER | CROP_HCENTER
 
     def __init__(self, width, height, position):
@@ -40,6 +42,9 @@ class CropWindow(object):
             x = width - self.width
         if self.position & self.CROP_HCENTER:
             x = int((width - self.width) / 2)
+        if self.position & self.CROP_RANDOM:
+            x = random.randrange(0, width - self.width)
+            y = random.randrange(0, height - self.height)
 
         return image[y:y+self.height, x:x+self.width]
 
@@ -169,7 +174,7 @@ class ImageDataset(ABC):
         # if it is a slice, return the given items
         if isinstance(item, slice):
             start, stop, step = item.indices(len(self._triplets))
-            return [self.__getitem__(i) for i in range(start, step, stop)]
+            return [self.__getitem__(i) for i in range(start, stop, step)]
 
         if item < 0 or item >= len(self._triplets):
             raise ValueError("Out of range: {}".format(item))
