@@ -166,6 +166,11 @@ class ImageDataset(ABC):
         return len(self._triplets)
 
     def __getitem__(self, item):
+        # if it is a slice, return the given items
+        if isinstance(item, slice):
+            start, stop, step = item.indices(len(self._triplets))
+            return [self.__getitem__(i) for i in range(start, step, stop)]
+
         if item < 0 or item >= len(self._triplets):
             raise ValueError("Out of range: {}".format(item))
 
