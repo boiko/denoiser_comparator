@@ -9,6 +9,7 @@ import time
 import pathlib
 from results import Results
 from argparse import ArgumentParser
+from tqdm import tqdm
 
 
 def print_available(message, entries):
@@ -52,7 +53,7 @@ if __name__ == "__main__":
     # store the name of the default dataset
     default_dataset = datasets.list_datasets()[0]
     parser.add_argument("--list", action="store_true",
-                        help="List available denoisers, datasets and metrics")
+                        help="List available denoisers, datasets, noisers and metrics")
     parser.add_argument("--denoisers", action="store", nargs="+", metavar=("DENOISER1", "DENOISER2"),
                         help="Choose which denoisers should be used (default: all)", default="all")
     parser.add_argument("--noiser", action="store",
@@ -116,9 +117,9 @@ if __name__ == "__main__":
         output_dir = prepare_output_dir(options.output)
         print("Images are being saved to {}".format(output_dir))
 
-    results = Results(options.output, print=True)
+    results = Results(options.output)
 
-    for name, reference, noisy in the_dataset:
+    for name, reference, noisy in tqdm(the_dataset):
         result_images = {
             "reference": reference,
             "noisy": noisy,
