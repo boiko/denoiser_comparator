@@ -1,6 +1,9 @@
 from metrics import Metric
 from skimage import metrics
 
+import cv2
+import numpy as np
+
 class MeanSquaredError(Metric):
     """ Mean squared error metric
 

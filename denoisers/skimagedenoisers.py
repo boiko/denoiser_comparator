@@ -38,6 +38,7 @@ class BilateralDenoiser(SKImageDenoiser):
     name = "bilateral"
     description = "Bilateral Denoiser (skimage)"
 
+    win_size = 3
     def _denoise(self, image):
         return restoration.denoise_bilateral(image, multichannel=True)
 

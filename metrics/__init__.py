@@ -23,3 +23,6 @@ def create(metric):
         raise ValueError(metric)
 
     return metric_map()[metric]["factory"]()
+
+def default_metric():
+    return create("psnr")

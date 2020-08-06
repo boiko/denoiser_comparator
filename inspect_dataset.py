@@ -2,6 +2,7 @@
 
 from argparse import ArgumentParser
 from matplotlib import pyplot as plt
+from tqdm import tqdm
 from denoise_comparator import check_invalid, print_available
 import pandas as pd
 import datasets
@@ -29,7 +30,7 @@ def inspect_metrics(dataset, the_metrics):
     results["name"] = []
 
     print("Comparing images to get metrics (this may take a few minutes)")
-    for name, ref, noisy in dataset:
+    for name, ref, noisy in tqdm(dataset, "Comparing noisy and ref"):
         results["name"].append(name)
         for metric in the_metrics:
             results[metric.name].append(metric.compare(ref, noisy))
