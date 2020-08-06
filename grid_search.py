@@ -3,7 +3,6 @@
 from argparse import ArgumentParser
 from sklearn.model_selection import GridSearchCV, train_test_split
 from tqdm import tqdm
-import numpy as np
 import denoisers
 import datasets
 import noisers
@@ -77,7 +76,8 @@ if __name__ == "__main__":
             continue
 
         print("Grid searching {} denoiser...".format(denoiser.name))
-        grid = GridSearchCV(estimator=denoiser, param_grid=denoiser.param_grid, n_jobs=-1)
+        grid = GridSearchCV(estimator=denoiser, param_grid=denoiser.param_grid,
+                            n_jobs=-1, cv=3, verbose=1)
 
         grid.fit(X_train, y_train)
 
