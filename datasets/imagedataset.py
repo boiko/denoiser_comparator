@@ -90,20 +90,20 @@ class ImageDataset(ABC):
                 # try to fetch it
                 self.fetch(ref)
 
-            ref_img = Image.open(ref)
-            metadata["name"].append(name)
-            metadata["width"].append(ref_img.width)
-            metadata["height"].append(ref_img.height)
+            with Image.open(ref) as ref_img:
+                metadata["name"].append(name)
+                metadata["width"].append(ref_img.width)
+                metadata["height"].append(ref_img.height)
 
-            if noisy:
-                if not os.path.exists(noisy):
-                    self.fetch(noisy)
+                if noisy:
+                    if not os.path.exists(noisy):
+                        self.fetch(noisy)
 
-                noisy_img = Image.open(noisy)
-                if noisy_img.width != ref_img.width or noisy_img.height != noisy_img.height:
-                    raise ValueError("""Reference and noisy images are not of same size:
-                        * Ref: {}
-                        * Noisy: {}""". format(ref, noisy))
+                    with Image.open(noisy) as noisy_img:
+                        if noisy_img.width != ref_img.width or noisy_img.height != noisy_img.height:
+                            raise ValueError("""Reference and noisy images are not of same size:
+                                * Ref: {}
+                                * Noisy: {}""". format(ref, noisy))
 
         self.metadata = pd.DataFrame(metadata)
 
