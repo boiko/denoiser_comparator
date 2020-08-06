@@ -1,5 +1,6 @@
 from . import Denoiser
 import bm3d
+import numpy as np
 
 class BM3DDenoiser(Denoiser):
     """
@@ -15,9 +16,13 @@ class BM3DDenoiser(Denoiser):
     name = "bm3d"
     description = "Exact Transform-Domain Noise Variance for Collaborative Filtering of Stationary Correlated Noise"
 
+    sigma_psd = 25.5
+
+    def param_grid(self):
+        return {"sigma_psd": np.linspace(1, 30, 20)}
+
     def denoise(self, image):
-        # BM3d works on float RGB, so swap the input BGR into RGB, convert to float and then back
+        # BM3d works on  RGB, so swap the input BGR into RGB and then back
         img = self.swap_bgr_rgb(image)
-        result = self.swap_bgr_rgb(bm3d.bm3d(img, sigma_psd=25.4,
-                                             stage_arg=bm3d.BM3DStages.ALL_STAGES))
-        return result.astype("uint8")
+        result = self.swap_bgr_rgb(bm3d.bm3d_rgb(img, sigma_psd=self.sigma_psd))
+        return np.clip(result, 0, 255).astype("uint8")
