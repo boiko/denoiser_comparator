@@ -64,7 +64,7 @@ if __name__ == "__main__":
                         help="Metrics to be used to compare results (default: all)", default="all")
     parser.add_argument("--output", action="store", default="output.csv",
                         help="Output CSV file to store the results (default: output.csv)")
-    parser.add_argument("--crop", nargs=2, metavar="WIDTH HEIGHT", type=int)
+    parser.add_argument("--crop", nargs=2, metavar=("WIDTH", "HEIGHT"), type=int)
     parser.add_argument("--preview", action="store_true", help="Preview images after each step")
     parser.add_argument("--save-images", action="store_true",
                         help="Save image results to same folder/name as the output CSV file.")
