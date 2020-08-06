@@ -26,8 +26,9 @@ class CropWindow(object):
         self.height = height
         self.position = position
 
-    def crop_image(self, image):
-        height, width, channels = image.shape
+    def crop_images(self, imgref, imgnoisy):
+        # assume both images of same size
+        height, width, channels = imgref.shape
 
         x = y = 0
         if self.position & self.CROP_TOP:
@@ -46,7 +47,7 @@ class CropWindow(object):
             x = random.randrange(0, width - self.width)
             y = random.randrange(0, height - self.height)
 
-        return image[y:y+self.height, x:x+self.width]
+        return imgref[y:y+self.height, x:x+self.width], imgnoisy[y:y+self.height, x:x+self.width]
 
 class ImageDataset(ABC):
     """ Base class for all dataset objects
@@ -141,10 +142,7 @@ class ImageDataset(ABC):
             # try to fetch it
             self.fetch(path)
 
-        image = cv2.imread(path)
-        if self.crop_window:
-            image = self.crop_window.crop_image(image)
-        return image
+        return cv2.imread(path)
 
     def crop(self, width, height, position):
         if width > self.metadata.width.min() or height > self.metadata.height.min():
@@ -193,6 +191,9 @@ class ImageDataset(ABC):
             noisy_image = self.noiser.noise(ref_image)
         else:
             noisy_image = self.load_image(noisy)
+
+        if self.crop_window:
+            ref_image, noisy_image = self.crop_window.crop_images(ref_image, noisy_image)
 
         return (name, ref_image, noisy_image)
 
