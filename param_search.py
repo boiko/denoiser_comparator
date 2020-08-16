@@ -7,6 +7,7 @@ import denoisers
 import datasets
 import noisers
 from denoise_comparator import check_invalid, print_available
+import pandas as pd
 
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -22,6 +23,10 @@ if __name__ == "__main__":
                         help="Generate synthetic noise using the given noiser")
     parser.add_argument("--dataset", action="store", default=default_dataset,
                         help="Dataset to be used (default: {})".format(default_dataset))
+    parser.add_argument("--cv-folds", action="store", type=int, default=3,
+                        help="Number of cross validation folds (default: 3)")
+    parser.add_argument("--iterations", action="store", type=int, default=200,
+                        help="Number of random iterations (default: 200)")
     options = parser.parse_args()
 
     if options.list:
@@ -77,9 +82,12 @@ if __name__ == "__main__":
 
         print("Grid searching {} denoiser...".format(denoiser.name))
         grid = RandomizedSearchCV(estimator=denoiser, param_distributions=denoiser.param_grid,
-                                n_jobs=-1, cv=3, verbose=1, n_iter=200)
+                                n_jobs=-1, cv=options.cv_folds, verbose=1, n_iter=options.iterations)
 
         grid.fit(X_train, y_train)
+
+        df = pd.DataFrame(grid.cv_results_)
+        df.to_csv("params_{}.csv".format(denoiser.name))
 
         # evaluate the best params both on train and on test data
         denoiser.set_params(**grid.best_params_)
