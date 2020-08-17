@@ -1,4 +1,5 @@
 from . import Denoiser
+from scipy.stats import uniform
 import bm3d
 import numpy as np
 
@@ -19,7 +20,7 @@ class BM3DDenoiser(Denoiser):
     sigma_psd = 25.5
 
     def param_grid(self):
-        return {"sigma_psd": np.linspace(1, 30, 20)}
+        return {"sigma_psd": uniform(loc=1, scale=30)}
 
     def denoise(self, image):
         # BM3d works on  RGB, so swap the input BGR into RGB and then back

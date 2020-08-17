@@ -11,15 +11,15 @@ class FastNLMeansDenoiser(Denoiser):
     name = "fastnlmeans"
     description = "Fast Non-Linear Means Denoiser (OpenCV)"
 
-    h = 5
-    h_color = 1
-    template_window_size = 7
-    search_window_size = 21
+    h = 14
+    h_color = 29
+    template_window_size = 3
+    search_window_size = 23
 
     param_grid = {
         "h": range(3, 15),
-        "h_color": range(3,30),
-        "template_window_size": range(3, 26, 2),
+        "h_color": range(9,30),
+        "template_window_size": range(3, 18, 2),
         "search_window_size": range(7, 26, 2),
     }
     def denoise(self, image):

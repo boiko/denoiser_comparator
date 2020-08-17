@@ -62,7 +62,7 @@ if __name__ == "__main__":
     y_test = []
 
     # split the dataset between train and test and extract one random patch from each image
-    the_dataset.crop(400, 400, datasets.CropWindow.CROP_RANDOM)
+    the_dataset.crop(800, 800, datasets.CropWindow.CROP_RANDOM)
     train, test = train_test_split(list(tqdm(the_dataset, "Loading data")), train_size=0.7)
 
     print("Size of train: {} test: {}".format(len(train), len(test)))
