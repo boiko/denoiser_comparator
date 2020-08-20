@@ -66,8 +66,9 @@ if __name__ == "__main__":
                         help="Output CSV file to store the results (default: output.csv)")
     parser.add_argument("--crop", nargs=2, metavar=("WIDTH", "HEIGHT"), type=int)
     parser.add_argument("--preview", action="store_true", help="Preview images after each step")
-    parser.add_argument("--save-images", action="store_true",
-                        help="Save image results to same folder/name as the output CSV file.")
+    parser.add_argument("--discard-images", action="store_true",
+                        help="By default image results are saved to same folder/name as the output CSV file."
+                             " Skip saving.")
     options = parser.parse_args()
 
     if options.list:
@@ -113,7 +114,8 @@ if __name__ == "__main__":
 
     print("Results are being saved to {}".format(options.output))
     output_dir = pathlib.Path(".")
-    if options.save_images:
+
+    if not options.discard_images:
         output_dir = prepare_output_dir(options.output)
         print("Images are being saved to {}".format(output_dir))
 
@@ -141,7 +143,7 @@ if __name__ == "__main__":
                 value = metric.compare(reference, denoisy)
                 results.append(name, denoiser, metric, value, duration)
 
-        if options.save_images:
+        if not options.discard_images:
             for key, img in result_images.items():
                 cv2.imwrite(str(output_dir / "{}_{}.png".format(name, key)), img)
 
