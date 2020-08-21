@@ -1,5 +1,6 @@
 from . import Denoiser
 import cv2
+from scipy.stats import uniform
 
 
 class FastNLMeansDenoiser(Denoiser):
@@ -51,17 +52,19 @@ class GaussianBlurDenoiser(Denoiser):
     description = "Gaussian blur filter"
 
     # params
-    kernel_size = 19
-    sigma_x = 4
+    kernel_size = 11
+    sigma_x = 3.90
+    sigma_y = 2.418
 
     param_grid = {
-        "kernel_size": range(3, 22, 2),
-        "sigma_x": range(0, 20),
+        "kernel_size": range(3, 28, 2),
+        "sigma_x": uniform(loc=0, scale=30),
+        "sigma_y": uniform(loc=0, scale=30),
     }
 
     def denoise(self, image):
         return cv2.GaussianBlur(image, ksize=(self.kernel_size, self.kernel_size),
-                                sigmaX=self.sigma_x)
+                                sigmaX=self.sigma_x, sigmaY=self.sigma_y)
 
 class MedianBlurDenoiser(Denoiser):
     """Median blur filter
