@@ -19,8 +19,7 @@ class DenoiserResults(QObject):
 
     @pyqtProperty('QVariantMap', notify=metricsChanged)
     def metrics(self):
-        print(self._data[self._data.image == self._image])
-        return {"foo": 1}
+        return self._data[self._data.image == self._image].set_index("metric").value.round(4).to_dict()
 
     @pyqtProperty(str, notify=imageChanged)
     def image(self):
@@ -67,10 +66,7 @@ class Viewer(QObject):
         return self._denoisers
 
     def createDenoiserList(self):
-        print(self._data.denoiser.unique())
-        print(self._data[self._data.denoiser == "none"])
         self._denoisers = [DenoiserResults(self, name, self._data[self._data.denoiser == name]) for name in self._data.denoiser.unique()]
-        print([self._data[self._data.denoiser == name] for name in self._data.denoiser.unique()])
 
     def run(self):
         self.view.showMaximized()

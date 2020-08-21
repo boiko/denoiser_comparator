@@ -147,6 +147,7 @@ Rectangle {
                 contentX: reference.contentX
                 contentY: reference.contentY
                 imageScale: scaleSlider.value
+                metrics: modelData.metrics
 
                 Layout.fillWidth: true
                 Layout.fillHeight: true
