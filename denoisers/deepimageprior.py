@@ -8,6 +8,9 @@ from keras.models import Model
 from keras.optimizers import Adam
 from . import Denoiser
 import numpy as np
+from tqdm import tqdm
+
+#import cv2
 
 def reflection_padding(x, padding):
     reflected = Lambda(lambda x: x[:, :, ::-1, :])(x)
@@ -125,8 +128,10 @@ class DeepImagePrior(Denoiser):
         model = define_denoising_model(height, width)
         input_noise = np.random.uniform(0, 0.1, (1, height, width, 32))
 
-        for i in range(1800):
-            print("Iteration {}/1800".format(i+1))
+        for i in tqdm(range(1800)):
             model.train_on_batch(input_noise + np.random.normal(0, 1/30.0, (height, width, 32)), image[None, :, :, :])
+            #if (i % 10) == 0:
+            #    cv2.imshow("preview", np.clip(model.predict(input_noise)[0], 0, 255).astype(np.uint8))
+            #    cv2.waitKey(1)
 
         return np.clip(model.predict(input_noise)[0], 0, 255).astype(np.uint8)
