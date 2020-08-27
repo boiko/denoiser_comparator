@@ -50,6 +50,10 @@ denoiser_map = {
         "factory": (".cycleisp", "CycleISP"),
         "description": "CycleISP: Real Image Restoration via Improved Data Synthesis"
     },
+    "cbdnet": {
+        "factory": (".cbdnet", "CBDNet"),
+        "description": "Real Image Restoration via Improved Data Synthesis"
+    }
 }
 
 def list_denoisers(with_description=False):
