@@ -37,6 +37,7 @@ Rectangle {
                 color: "lightBlue"
             }
             highlightFollowsCurrentItem: true
+            highlightMoveDuration: 200
             keyNavigationEnabled: true
 
             header: Rectangle {
