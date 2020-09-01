@@ -17,10 +17,13 @@ class BM3DDenoiser(Denoiser):
     name = "bm3d"
     description = "Exact Transform-Domain Noise Variance for Collaborative Filtering of Stationary Correlated Noise"
 
-    sigma_psd = 0.4
+    # best according to param_search.py
+    #sigma_psd = 91.02
+
+    sigma_psd = 30.0
 
     param_grid = {
-        "sigma_psd": uniform(loc=0., scale=30)
+        "sigma_psd": uniform(loc=0., scale=255.)
     }
 
     def denoise(self, image):
