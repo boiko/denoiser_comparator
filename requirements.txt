@@ -1,3 +1,4 @@
+## The following requirements were added by pip freeze:
 absl-py==0.9.0
 astunparse==1.6.3
 bm3d==3.0.7
@@ -5,6 +6,7 @@ cachetools==4.1.1
 certifi==2020.6.20
 chardet==3.0.4
 cycler==0.10.0
+Cython==0.29.21
 decorator==4.4.2
 future==0.18.2
 gast==0.3.3
@@ -37,6 +39,7 @@ pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pyparsing==2.4.7
 PyQt5==5.15.0
+PyQt5-sip==12.8.0
 python-dateutil==2.8.1
 pytz==2020.1
 PyWavelets==1.1.1
@@ -47,10 +50,13 @@ rsa==4.6
 scikit-image==0.17.2
 scikit-learn==0.23.2
 scipy==1.4.1
+seaborn==0.10.1
 six==1.15.0
+suds-jurko==0.6
 tensorboard==2.2.2
 tensorboard-plugin-wit==1.7.0
 tensorflow==2.2.0
+tensorflow-cpu==2.3.0
 tensorflow-estimator==2.2.0
 tensorflow-gpu==2.2.0
 termcolor==1.1.0
