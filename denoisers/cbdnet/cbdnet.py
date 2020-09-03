@@ -52,7 +52,7 @@ class CBDNet(Denoiser):
         print(checkpoint)
         if os.path.exists(checkpoint):
             # load existing model
-            self._model_info = torch.load(checkpoint)
+            self._model_info = torch.load(checkpoint, map_location="cpu")
             print('==> loading existing model: {}'.format(checkpoint))
 
             self._model.load_state_dict(self._model_info['state_dict'])

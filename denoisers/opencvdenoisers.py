@@ -6,7 +6,7 @@ from scipy.stats import uniform
 class FastNLMeansDenoiser(Denoiser):
     """ Non-Linear Means denoiser
 
-    This denoiser is implemented in scikit-image and is based on the following reference:
+    This denoiser is implemented in opencv and is based on the following reference:
     Reference: https://doi.org/10.1109/CVPR.2005.38
     """
     name = "fastnlmeans"

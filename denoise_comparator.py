@@ -7,6 +7,7 @@ import noisers
 import cv2
 import time
 import pathlib
+import json
 from results import Results
 from argparse import ArgumentParser
 from tqdm import tqdm
@@ -45,6 +46,19 @@ def prepare_output_dir(csv_file):
         output_dir.mkdir(parents=True)
 
     return output_dir
+
+def save_metadata(meta_file, dataset, noiser, denoisers, metrics, crop):
+    meta = {}
+    meta["dataset"] = dataset.name
+    meta["noiser"] = noiser if noiser else "none"
+    meta["denoisers"] = {}
+    for denoiser in denoisers:
+        meta[denoiser.name] = {p: getattr(denoiser, p, None) for p in denoiser.param_grid}
+    meta["metrics"] = [m.name for m in metrics]
+    meta["crop"] = {"width": crop[0], "height": crop[1]} if crop else None
+
+    with open(meta_file, "w") as f:
+        json.dump(meta, f, indent=4)
 
 if __name__ == "__main__":
 
@@ -115,6 +129,11 @@ if __name__ == "__main__":
     print("Results are being saved to {}".format(options.output))
     output_dir = pathlib.Path(".")
 
+    meta_file = options.output.replace(".csv", "_meta.json")
+    print("Metadata will be saved to {}".format(meta_file))
+
+
+    save_metadata(meta_file, the_dataset, options.noiser, the_denoisers, the_metrics, options.crop)
     if not options.discard_images:
         output_dir = prepare_output_dir(options.output)
         print("Images are being saved to {}".format(output_dir))
@@ -132,6 +151,7 @@ if __name__ == "__main__":
             results.append(name, None, metric, value, 0)
 
         for denoiser in the_denoisers:
+            tqdm.write("Image: {} denoiser: {}".format(name, denoiser.name))
             start = time.time()
             denoisy = denoiser.denoise(noisy)
             end = time.time()
