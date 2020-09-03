@@ -14,7 +14,7 @@ def plot_dataset_noise_shape(data, target_dir):
         fig = plt.figure()
         metric_data.value.hist(bins=20)
         plt.xlabel(metric.upper())
-        plt.savefig(os.path.join(target_dir, "dataset_noise_{}.svg".format(metric)))
+        plt.savefig(os.path.join(target_dir, "dataset_noise_{}.eps".format(metric)))
         plt.close(fig)
 
 def scatter_denoisers_vs_noisy(data, target_dir):
@@ -27,7 +27,7 @@ def scatter_denoisers_vs_noisy(data, target_dir):
             sbn.scatterplot(data = pivot, x=denoiser, y="none")
             plt.xlabel(denoiser)
             plt.ylabel("Imagem com ruído")
-            plt.savefig(os.path.join(target_dir, "scatter_{}_noisy_vs_{}.svg".format(metric, denoiser)))
+            plt.savefig(os.path.join(target_dir, "scatter_{}_noisy_vs_{}.eps".format(metric, denoiser)))
             plt.close(fig)
 
 def plot_average_per_metric(data, target_dir):
@@ -42,7 +42,7 @@ def plot_average_per_metric(data, target_dir):
         ax.set(xlabel=metric.upper(), ylabel="")
 
         plt.tight_layout()
-        plt.savefig(os.path.join(target_dir, "barplot_mean_{}.svg".format(metric)))
+        plt.savefig(os.path.join(target_dir, "barplot_mean_{}.eps".format(metric)))
         plt.close(fig)
 
 def plot_runtime(data, target_dir):
@@ -57,7 +57,7 @@ def plot_runtime(data, target_dir):
     ax = sbn.barplot(x=mean, y=mean.index)
     ax.set(xlabel="Tempo médio (s)", ylabel="")
     plt.tight_layout()
-    plt.savefig(os.path.join(target_dir, "runtime_average.svg"))
+    plt.savefig(os.path.join(target_dir, "runtime_average.eps"))
     plt.close(fig)
 
     # and the total time
@@ -66,7 +66,7 @@ def plot_runtime(data, target_dir):
     ax = sbn.barplot(x=acc, y=acc.index)
     ax.set(xlabel="Tempo total (s)", ylabel="")
     plt.tight_layout()
-    plt.savefig(os.path.join(target_dir, "runtime_total.svg"))
+    plt.savefig(os.path.join(target_dir, "runtime_total.eps"))
     plt.close(fig)
 
 
