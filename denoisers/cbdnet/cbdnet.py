@@ -30,6 +30,7 @@ class CBDNet(Denoiser):
 
     name = "cbdnet"
     description = "Convolutional Blind Denoising of Real Photographs"
+    parallel = False
 
     current_dir = os.path.dirname(__file__)
 

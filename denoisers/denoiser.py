@@ -16,6 +16,8 @@ class Denoiser(ABC):
 
     param_grid = {}
 
+    parallel = True
+
     def __init__(self, **kwargs):
         # if used from sklearn (via score) use a default metric
         self._metric = None

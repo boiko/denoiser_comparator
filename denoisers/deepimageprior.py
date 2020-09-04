@@ -122,6 +122,7 @@ class DeepImagePrior(Denoiser):
 
     name = "deep_image_prior"
     description = "Deep image prior denoiser"
+    parallel = False
 
     def denoise(self, image):
         height, width = image.shape[:2]

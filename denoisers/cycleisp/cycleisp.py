@@ -20,6 +20,7 @@ class CycleISP(Denoiser):
 
     name = "cycleisp"
     description = "Real Image Restoration via Improved Data Synthesis"
+    parallel = False
 
     def __init__(self, weights="dnd", use_gpu=False):
         """

@@ -11,7 +11,7 @@ import json
 from results import Results
 from argparse import ArgumentParser
 from tqdm import tqdm
-
+from joblib import Parallel, delayed
 
 def print_available(message, entries):
     print(message)
@@ -60,6 +60,18 @@ def save_metadata(meta_file, dataset, noiser, denoisers, metrics, crop):
     with open(meta_file, "w") as f:
         json.dump(meta, f, indent=4)
 
+def generate_batches(ds, size):
+    for start in range(0, len(ds), size):
+        yield ds[start:start + size]
+
+def run(name, noisy, denoiser):
+    tqdm.write("Image: {} denoiser: {}...".format(name, denoiser.name))
+    start = time.time()
+    denoisy = denoiser.denoise(noisy)
+    end = time.time()
+    duration = end - start
+    return name, denoiser, denoisy, duration
+
 if __name__ == "__main__":
 
     parser = ArgumentParser()
@@ -79,10 +91,11 @@ if __name__ == "__main__":
     parser.add_argument("--output", action="store", default="output.csv",
                         help="Output CSV file to store the results (default: output.csv)")
     parser.add_argument("--crop", nargs=2, metavar=("WIDTH", "HEIGHT"), type=int)
-    parser.add_argument("--preview", action="store_true", help="Preview images after each step")
     parser.add_argument("--discard-images", action="store_true",
                         help="By default image results are saved to same folder/name as the output CSV file."
                              " Skip saving.")
+    parser.add_argument("--parallel", action="store_true", default=False,
+                        help="Run jobs in parallel. This might affect the runtime of the algorithms")
     options = parser.parse_args()
 
     if options.list:
@@ -132,7 +145,6 @@ if __name__ == "__main__":
     meta_file = options.output.replace(".csv", "_meta.json")
     print("Metadata will be saved to {}".format(meta_file))
 
-
     save_metadata(meta_file, the_dataset, options.noiser, the_denoisers, the_metrics, options.crop)
     if not options.discard_images:
         output_dir = prepare_output_dir(options.output)
@@ -140,35 +152,50 @@ if __name__ == "__main__":
 
     results = Results(options.output)
 
-    for name, reference, noisy in tqdm(the_dataset):
-        result_images = {
-            "reference": reference,
-            "noisy": noisy,
-        }
-        # store the metric values for the noisy images
-        for metric in the_metrics:
-            value = metric.compare(reference, noisy)
-            results.append(name, None, metric, value, 0)
+    batch_size = 8 if options.parallel else 1
+    n_jobs = -1 if options.parallel else 1
 
-        for denoiser in the_denoisers:
-            tqdm.write("Image: {} denoiser: {}".format(name, denoiser.name))
-            start = time.time()
-            denoisy = denoiser.denoise(noisy)
-            end = time.time()
-            duration = end - start
+    pbar = tqdm(total=len(the_dataset) * len(the_denoisers))
+    for batch in generate_batches(the_dataset, batch_size):
+        result_images = {}
+        batch_results = []
+        jobs = []
+        for name, reference, noisy in batch:
+            result_images[name] = {
+                "reference": reference,
+                "noisy": noisy,
+            }
 
-            result_images[denoiser.name] = denoisy
+            # store the metric values for the noisy images
+            for metric in the_metrics:
+                value = metric.compare(reference, noisy)
+                results.append(name, None, metric, value, 0)
+
+
+            sequential_denoisers = [d for d in the_denoisers if not d.parallel]
+            parallel_denoisers = [d for d in the_denoisers if d.parallel]
+
+            # for the non-parallel denoisers, just run them
+            for denoiser in sequential_denoisers:
+                batch_results.append(run(name, noisy, denoiser))
+                pbar.update(1)
+
+            for denoiser in parallel_denoisers:
+                jobs.append((name, noisy, denoiser))
+
+        batch_results += Parallel(n_jobs=n_jobs)(delayed(run)(name, noisy, denoiser) for name, noisy, denoiser in jobs)
+
+        for name, denoiser, denoisy, duration in batch_results:
+            result_images[name][denoiser.name] = denoisy
 
             for metric in the_metrics:
-                value = metric.compare(reference, denoisy)
+                value = metric.compare(result_images[name]["reference"], denoisy)
                 results.append(name, denoiser, metric, value, duration)
 
         if not options.discard_images:
-            for key, img in result_images.items():
-                cv2.imwrite(str(output_dir / "{}_{}.png".format(name, key)), img)
+            for image_name, data in result_images.items():
+                for key, img in data.items():
+                    cv2.imwrite(str(output_dir / "{}_{}.png".format(image_name, key)), img)
 
-        if options.preview:
-            for name, img in result_images.items():
-                cv2.imshow(name, img)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+        # the non-parallel denoisers have been accounted for already
+        pbar.update(len(batch) * len(parallel_denoisers))
