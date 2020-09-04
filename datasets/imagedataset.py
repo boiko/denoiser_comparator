@@ -21,7 +21,7 @@ class CropWindow(object):
     CROP_RANDOM = 64
     CROP_CENTER = CROP_VCENTER | CROP_HCENTER
 
-    def __init__(self, width, height, position):
+    def __init__(self, width, height, position = CROP_CENTER):
         self.width = width
         self.height = height
         self.position = position
