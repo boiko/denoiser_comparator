@@ -51,6 +51,7 @@ class Viewer(QObject):
         self.view.rootContext().setContextProperty("result_data", self)
         self.view.setResizeMode(QQuickView.SizeRootObjectToView)
         self.view.setSource(QUrl.fromLocalFile(os.path.join(current_dir, "qml", "viewer.qml")))
+        self.view.setTitle(image_path)
 
     @pyqtProperty(list, constant=True)
     def image_names(self):

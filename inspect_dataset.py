@@ -9,19 +9,38 @@ import datasets
 import metrics
 import noisers
 
-def inspect_dataset(dataset):
+def inspect_dataset(dataset, lang="en"):
+    def translate(label, lang):
+        # FIXME: better use gettext or something like that in the future
+        labels = {
+            "pt_BR": {
+                "Width": "Largura",
+                "Height": "Altura",
+                "Image sizes": "Tamanhos das imagens",
+                "Width boxplot": "Boxplot das larguras",
+                "Height boxplot": "Boxplot das larguras",
+            }
+        }
+
+        if lang not in labels or label not in labels[lang]:
+            return label
+
+        return labels[lang][label]
+
     # just for the fun of it, plot the image size distribution to the
     axes = plt.subplot(2, 1, 1)
     dataset.metadata.plot(x="width", y="height", kind="scatter", ax=axes)
-    plt.title("Image sizes")
+    plt.xlabel(translate("Width", lang))
+    plt.ylabel(translate("Height", lang))
+    plt.title(translate("Image sizes", lang))
 
     axes = plt.subplot(2, 2, 3)
     dataset.metadata.width.plot(kind="box", ax=axes)
-    plt.title("Width boxplot")
+    plt.title(translate("Width boxplot", lang))
 
     axes = plt.subplot(2, 2, 4)
     dataset.metadata.height.plot(kind="box", ax=axes)
-    plt.title("Height boxplot")
+    plt.title(translate("Height boxplot", lang))
     plt.tight_layout(pad=1.0)
 
 def inspect_metrics(dataset, the_metrics):
@@ -60,6 +79,8 @@ if __name__ == "__main__":
                         help="Dataset to be used (default: {})".format(default_dataset))
     parser.add_argument("--metrics", action="store", nargs="+", metavar=("METRIC1", "METRIC2"),
                         help="Metrics to be used to compare results (default: all)", default="all")
+    parser.add_argument("--skip-metrics", action="store_true",
+                        help="Skip the calculation of the metrics (expensive)")
     parser.add_argument("--noiser", action="store",
                         help="Generate synthetic noise using the given noiser")
     options = parser.parse_args()
@@ -92,8 +113,9 @@ if __name__ == "__main__":
 
     inspect_dataset(the_dataset)
 
-    plt.figure()
-    inspect_metrics(the_dataset, the_metrics)
+    if not options.skip_metrics:
+        plt.figure()
+        inspect_metrics(the_dataset, the_metrics)
 
     plt.show()
 
