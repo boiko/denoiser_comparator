@@ -1,0 +1,55 @@
+{
+    "dataset": "natural_images",
+    "noiser": "snp",
+    "denoisers": {},
+    "nlmeans": {
+        "patch_size": 3,
+        "patch_distance": 17,
+        "h": 0.51
+    },
+    "bilateral": {
+        "win_size": 3,
+        "sigma_color": 0.1,
+        "sigma_spatial": 1,
+        "bins": 10000
+    },
+    "tvchambolle": {
+        "weight": 0.1,
+        "eps": 0.0002,
+        "n_iter_max": 200
+    },
+    "wavelet": {
+        "sigma": 0.8,
+        "wavelet": "db6",
+        "convert2ycbcr": false
+    },
+    "fastnlmeans": {
+        "h": 14,
+        "h_color": 29,
+        "template_window_size": 3,
+        "search_window_size": 23
+    },
+    "blur": {
+        "kernel_size": 11
+    },
+    "gaussianblur": {
+        "kernel_size": 11,
+        "sigma_x": 3.9,
+        "sigma_y": 2.418
+    },
+    "medianblur": {
+        "kernel_size": 15
+    },
+    "bm3d": {
+        "sigma_psd": 30.0
+    },
+    "cycleisp": {},
+    "cbdnet": {},
+    "metrics": [
+        "msqe",
+        "nrmse",
+        "psnr",
+        "ssim"
+    ],
+    "crop": null
+}
