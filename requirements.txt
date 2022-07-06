@@ -23,7 +23,7 @@ Keras==2.3.1
 Keras-Applications==1.0.8
 Keras-Preprocessing==1.1.2
 kiwisolver==1.2.0
-lxml==4.6.3
+lxml==4.9.1
 M2Crypto==0.36.0
 Markdown==3.2.2
 matplotlib==3.3.0
