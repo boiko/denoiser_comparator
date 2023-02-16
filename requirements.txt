@@ -65,5 +65,5 @@ tifffile==2020.7.17
 torch==1.6.0
 tqdm==4.48.2
 urllib3==1.26.5
-Werkzeug==1.0.1
+Werkzeug==2.2.3
 wrapt==1.12.1
